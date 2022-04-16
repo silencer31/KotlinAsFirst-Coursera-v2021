@@ -186,13 +186,15 @@ fun collatzSteps(x: Int): Int {
  * минимальное число k, которое делится и на m и на n без остатка
  */
 fun lcm(m: Int, n: Int): Int {
-    var k: Int = max(m, n) - 1
-    var rest: Int = 0
+    if (m == n) return m
 
-    do {
-        k++
-        rest = (k % m) + (k % n)
-    } while(rest != 0)
+    var k: Int = min(m, n)
+    val maxVal: Int = max(m, n)
+
+    while(true) {
+        if (k % maxVal == 0) break
+        k += min(m, n)
+    }
 
     return k
 }
@@ -207,6 +209,8 @@ fun lcm(m: Int, n: Int): Int {
 fun isCoPrime(m: Int, n: Int): Boolean {
     val minVal = min(m, n)
     val maxVal = max(m, n)
+
+    if ((minVal == 1) && (maxVal == 1)) return true
 
     if (minVal == 1) return false
 
@@ -250,6 +254,31 @@ fun revert(n: Int): Int {
         else {
             revertValue = (revertValue * 10) + tailValue
          }
+    }
+
+    return revertValue
+}
+
+fun revertLong(n: Long): Long {
+    if (n < 10) return n
+
+    var mainValue: Long = n
+    var tailValue: Long = 0
+
+    var revertValue: Long = 0
+
+    while (mainValue != 0L) {
+        tailValue = mainValue % 10
+        mainValue /= 10
+
+        if (mainValue < 10) {
+            revertValue = (revertValue * 10) + tailValue
+            revertValue = (revertValue * 10) + mainValue
+            break
+        }
+        else {
+            revertValue = (revertValue * 10) + tailValue
+        }
     }
 
     return revertValue
@@ -345,17 +374,20 @@ fun cos(x: Double, eps: Double): Double = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
+
+
 fun squareSequenceDigit(n: Int): Int {
     var counted: Int = 0 // Кол-во чисел, которое посчитано.
-    var revertSqr: Int = 0 //
-    var sqrVal: Int = 0
+    var revertSqr: Long = 0 //
+    var sqrVal: Long = 0
     var answer: Int = 0
     var zerosNumber: Int = 0
 
     for (i in 1 until (n + 1)) {
-        sqrVal = sqr(i)
+
+        sqrVal = (i.toLong() * i.toLong())
         while (true) {
-            if ( (sqrVal % 10) == 0) {
+            if ( (sqrVal % 10) == 0L) {
                 zerosNumber++
             }
             else {
@@ -366,7 +398,7 @@ fun squareSequenceDigit(n: Int): Int {
             if (sqrVal < 10) break
         }
 
-        revertSqr = revert(sqr(i))
+        revertSqr = revertLong(i.toLong() * i.toLong())
 
         while (true) {
             if (zerosNumber > 0) {
@@ -376,13 +408,12 @@ fun squareSequenceDigit(n: Int): Int {
                 if (counted == n ) return answer
             }
             else {
-                answer = revertSqr % 10
+                answer = (revertSqr % 10).toInt()
                 counted++
                 if (counted == n ) return answer
                 revertSqr /= 10
-                if (revertSqr == 0) break
+                if (revertSqr == 0L) break
             }
-
         }
     }
 
@@ -400,20 +431,43 @@ fun squareSequenceDigit(n: Int): Int {
 fun fibSequenceDigit(n: Int): Int {
     var counted: Int = 0 // Кол-во чисел, которое посчитано.
     var revertFib: Int = 0 // Зеркальное число Фибоначчи.
+    var fibN: Int = 0
     var answer: Int = 0
+    var zerosNumber: Int = 0
 
     for (i in 1 until (n + 1)) {
-        revertFib = revert(fib(i))
+        fibN = fib(i)
+        revertFib = revert(fibN)
+
 
         while (true) {
-            answer = revertFib % 10
-            counted++
+            if ((fibN % 10) == 0) {
+                zerosNumber++
+            }
+            else {
+                break
+            }
 
-            if (counted == n) return answer
-
-            revertFib /= 10
-            if (revertFib == 0) break
+            fibN /= 10
+            if (fibN < 10) break
         }
+
+        while (true) {
+            if (zerosNumber > 0) {
+                answer = 0
+                zerosNumber--
+                counted++
+                if (counted == n ) return answer
+            }
+            else {
+                answer = revertFib % 10
+                counted++
+                if (counted == n ) return answer
+                revertFib /= 10
+                if (revertFib == 0) break
+            }
+        }
+
     }
 
     return answer
