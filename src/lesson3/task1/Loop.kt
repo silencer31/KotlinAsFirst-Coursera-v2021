@@ -111,6 +111,23 @@ fun fib(n: Int): Int {
     return sum
 }
 
+fun fibLong(n: Int): Long {
+    if ((n == 1) || (n == 2)) return 1
+
+    var sum: Long = 0
+    var theFirst: Long = 1
+    var theSecond: Long = 1
+
+    for (j in 3..n) {
+
+        sum = theFirst + theSecond
+        theFirst = theSecond
+        theSecond = sum
+    }
+
+    return sum
+}
+
 /**
  * Простая (2 балла)
  *
@@ -210,9 +227,9 @@ fun isCoPrime(m: Int, n: Int): Boolean {
     val minVal = min(m, n)
     val maxVal = max(m, n)
 
-    if ((minVal == 1) && (maxVal == 1)) return true
+    if ((minVal == 1) || (maxVal == 1)) return true
 
-    if (minVal == 1) return false
+    //if (minVal == 1) return false
 
     if (maxVal % minVal == 0) return false
 
@@ -386,36 +403,45 @@ fun squareSequenceDigit(n: Int): Int {
     for (i in 1 until (n + 1)) {
 
         sqrVal = (i.toLong() * i.toLong())
+        revertSqr = revertLong(sqrVal)
+        zerosNumber = 0
+
         while (true) {
-            if ( (sqrVal % 10) == 0L) {
+            if ((sqrVal % 10L) == 0L) {
                 zerosNumber++
             }
             else {
                 break
             }
 
-            sqrVal /= 10
-            if (sqrVal < 10) break
+            sqrVal /= 10L
+            if (sqrVal < 10L) break
         }
 
-        revertSqr = revertLong(i.toLong() * i.toLong())
+
 
         while (true) {
             if (zerosNumber > 0) {
                 answer = 0
                 zerosNumber--
                 counted++
-                if (counted == n ) return answer
+                if (counted == n) {
+
+                    return answer
+                }
             }
             else {
-                answer = (revertSqr % 10).toInt()
+                answer = (revertSqr % 10L).toInt()
                 counted++
-                if (counted == n ) return answer
-                revertSqr /= 10
+                if (counted == n) {
+                    return answer
+                }
+                revertSqr /= 10L
                 if (revertSqr == 0L) break
             }
         }
     }
+
 
     return answer
 }
@@ -430,18 +456,18 @@ fun squareSequenceDigit(n: Int): Int {
  */
 fun fibSequenceDigit(n: Int): Int {
     var counted: Int = 0 // Кол-во чисел, которое посчитано.
-    var revertFib: Int = 0 // Зеркальное число Фибоначчи.
-    var fibN: Int = 0
+    var revertFib: Long = 0 // Зеркальное число Фибоначчи.
+    var fibN: Long = 0
     var answer: Int = 0
     var zerosNumber: Int = 0
 
     for (i in 1 until (n + 1)) {
-        fibN = fib(i)
-        revertFib = revert(fibN)
+        fibN = fibLong(i)
+        revertFib = revertLong(fibN)
 
 
         while (true) {
-            if ((fibN % 10) == 0) {
+            if ((fibN % 10) == 0L) {
                 zerosNumber++
             }
             else {
@@ -460,11 +486,11 @@ fun fibSequenceDigit(n: Int): Int {
                 if (counted == n ) return answer
             }
             else {
-                answer = revertFib % 10
+                answer = (revertFib % 10).toInt()
                 counted++
                 if (counted == n ) return answer
                 revertFib /= 10
-                if (revertFib == 0) break
+                if (revertFib == 0L) break
             }
         }
 
