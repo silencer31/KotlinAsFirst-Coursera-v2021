@@ -88,6 +88,21 @@ fun digitNumber(n: Int): Int {
     return digNumber
 }
 
+fun digitNumberLong(n: Long): Int {
+    val nabs = abs(n)
+    if (nabs < 10) return 1
+
+    var digNumber: Int = 1
+    var compareDigit: Long = 10
+
+    while (compareDigit <= nabs.toLong()) {
+        compareDigit *= 10
+        digNumber++
+    }
+
+    return digNumber
+}
+
 /**
  * Простая (2 балла)
  *
@@ -391,58 +406,52 @@ fun cos(x: Double, eps: Double): Double = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-
-
-fun squareSequenceDigit(n: Int): Int {
-    var counted: Int = 0 // Кол-во чисел, которое посчитано.
-    var revertSqr: Long = 0 //
-    var sqrVal: Long = 0
-    var answer: Int = 0
-    var zerosNumber: Int = 0
-
-    for (i in 1 until (n + 1)) {
-
-        sqrVal = (i.toLong() * i.toLong())
-        revertSqr = revertLong(sqrVal)
-        zerosNumber = 0
-
-        while (true) {
-            if ((sqrVal % 10L) == 0L) {
-                zerosNumber++
-            }
-            else {
-                break
-            }
-
-            sqrVal /= 10L
-            if (sqrVal < 10L) break
+fun digitInPlace(digit: Long, place: Int) : Int {
+    if (digit < 10) {
+        if (place != 1) {
+            return -1
         }
 
-
-
-        while (true) {
-            if (zerosNumber > 0) {
-                answer = 0
-                zerosNumber--
-                counted++
-                if (counted == n) {
-
-                    return answer
-                }
-            }
-            else {
-                answer = (revertSqr % 10L).toInt()
-                counted++
-                if (counted == n) {
-                    return answer
-                }
-                revertSqr /= 10L
-                if (revertSqr == 0L) break
-            }
-        }
+        return digit.toInt()
     }
 
+    var counted: Int = 1
+    var bigDigit: Long = digit
 
+    while (true) {
+        bigDigit /= 10
+        if (bigDigit == 0L) break
+        counted++
+    }
+
+    if (counted < place) return -1
+
+    bigDigit = digit
+
+    for (i in 0 until (counted - place)) {
+        bigDigit /= 10
+    }
+
+    return (bigDigit % 10).toInt()
+}
+
+fun squareSequenceDigit(n: Int): Int {
+    var toCount: Int = n
+    var numberLen: Int = 0
+    var sqrVal: Long = 0
+    var answer: Int = 0
+
+
+    for (i in 1 until (n + 1)) {
+        sqrVal = i.toLong() * i.toLong()
+        numberLen = digitNumberLong(sqrVal)
+        if (toCount > numberLen) {
+            toCount -= numberLen
+        }
+        else {
+            return digitInPlace(sqrVal, toCount)
+        }
+    }
     return answer
 }
 /**
@@ -455,43 +464,19 @@ fun squareSequenceDigit(n: Int): Int {
  * Использовать операции со строками в этой задаче запрещается.
  */
 fun fibSequenceDigit(n: Int): Int {
-    var counted: Int = 0 // Кол-во чисел, которое посчитано.
-    var revertFib: Long = 0 // Зеркальное число Фибоначчи.
+    var toCount: Int = n
+    var numberLen: Int = 0
     var fibN: Long = 0
     var answer: Int = 0
-    var zerosNumber: Int = 0
 
     for (i in 1 until (n + 1)) {
         fibN = fibLong(i)
-        revertFib = revertLong(fibN)
-
-
-        while (true) {
-            if ((fibN % 10) == 0L) {
-                zerosNumber++
-            }
-            else {
-                break
-            }
-
-            fibN /= 10
-            if (fibN < 10) break
+        numberLen = digitNumberLong(fibN)
+        if (toCount > numberLen) {
+            toCount -= numberLen
         }
-
-        while (true) {
-            if (zerosNumber > 0) {
-                answer = 0
-                zerosNumber--
-                counted++
-                if (counted == n ) return answer
-            }
-            else {
-                answer = (revertFib % 10).toInt()
-                counted++
-                if (counted == n ) return answer
-                revertFib /= 10
-                if (revertFib == 0L) break
-            }
+        else {
+            return digitInPlace(fibN, toCount)
         }
 
     }
