@@ -74,7 +74,55 @@ fun main() {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30.02.2009) считается неверными
  * входными данными.
  */
-fun dateStrToDigit(str: String): String = TODO()
+fun daysInMonth(month: Int, year: Int): Int {
+    if ((year % 400 == 0) || ((year % 4 == 0) && (year % 100 != 0))) {
+        if (month == 2) return 29
+    }
+
+    if (month == 2) return 28
+
+    return if (month <= 7) {
+        if (month % 2 == 0) 30
+        else 31
+    } else {
+        if (month % 2 == 0) 31
+        else 30
+    }
+}
+fun dateStrToDigit(str: String): String {
+    val list = str.split(" ")
+
+    if (list.size != 3) return ""
+
+    val months = listOf<String>(
+        "декабря",
+        "февраля",
+        "марта",
+        "апреля",
+        "мая",
+        "июня",
+        "июля",
+        "августа",
+        "сентября",
+        "октября",
+        "ноября",
+        "декабря"
+    )
+
+    if ( !months.contains(list[1])) return ""
+
+    val dayNumber: Int = list[0].toInt()
+    val monthNumber: Int = months.indexOf(list[1]) + 1
+    val yearNumber: Int = list[2].toInt()
+
+    val daysMax = daysInMonth(monthNumber, yearNumber)
+
+    if (dayNumber > daysMax) return ""
+
+    //println(String.format("%02d.%02d.%02d", dayNumber, monthNumber, yearNumber))
+
+    return String.format("%02d.%02d.%02d", dayNumber, monthNumber, yearNumber)
+}
 
 /**
  * Средняя (4 балла)
@@ -86,7 +134,46 @@ fun dateStrToDigit(str: String): String = TODO()
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30 февраля 2009) считается неверными
  * входными данными.
  */
-fun dateDigitToStr(digital: String): String = TODO()
+fun dateDigitToStr(digital: String): String {
+    val list = digital.split(".")
+
+    if (list.size != 3) return ""
+
+    var dayNumber: Int
+    var monthNumber: Int
+    var yearNumber: Int
+
+    try {
+        dayNumber = list[0].toInt()
+        monthNumber = list[1].toInt()
+        yearNumber = list[2].toInt()
+    }
+    catch (e: NumberFormatException) {
+        return ""
+    }
+
+    if ((monthNumber < 1) || (monthNumber > 12)) return ""
+
+    val months = listOf<String>(
+        "декабря",
+        "февраля",
+        "марта",
+        "апреля",
+        "мая",
+        "июня",
+        "июля",
+        "августа",
+        "сентября",
+        "октября",
+        "ноября",
+        "декабря"
+    )
+
+    val daysMax = daysInMonth(monthNumber, yearNumber)
+    if (dayNumber > daysMax) return ""
+
+    return "$dayNumber ${months[monthNumber-1]} $yearNumber"
+}
 
 /**
  * Средняя (4 балла)
@@ -102,7 +189,35 @@ fun dateDigitToStr(digital: String): String = TODO()
  *
  * PS: Дополнительные примеры работы функции можно посмотреть в соответствующих тестах.
  */
-fun flattenPhoneNumber(phone: String): String = TODO()
+fun flattenPhoneNumber(phone: String): String {
+    val allowed = listOf<Char>('(', ')', ' ', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+
+    var resultNumber: String
+
+    if (phone.startsWith("+"))
+        resultNumber = phone.substring(1)
+    else
+        resultNumber = phone
+
+    for(symbol in resultNumber) {
+        if (!allowed.contains(symbol)) return ""
+    }
+
+    if (resultNumber.contains('(')) {
+        if (resultNumber.indexOf('(') == ( resultNumber.indexOf(')') - 1)) {
+            return ""
+        }
+    }
+
+    resultNumber = resultNumber.filter { it != ' ' && it != '-' && it != '(' && it != ')'}
+
+    if (phone.startsWith("+"))
+        resultNumber = "+$resultNumber"
+
+    //println(resultNumber)
+
+    return resultNumber
+}
 
 /**
  * Средняя (5 баллов)
@@ -114,7 +229,58 @@ fun flattenPhoneNumber(phone: String): String = TODO()
  * Прочитать строку и вернуть максимальное присутствующее в ней число (717 в примере).
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
-fun bestLongJump(jumps: String): Int = TODO()
+fun bestLongJump(jumps: String): Int {
+    val allowed = listOf<Char>( ' ', '%', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+    val demanded = listOf<Char>( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+
+    var digitFound: Boolean = false
+
+    for(symbol in jumps) {
+        if (!allowed.contains(symbol)) return -1
+
+        if (demanded.contains(symbol)) digitFound = true
+    }
+
+    if (!digitFound) return -1
+
+    var filteredString: String = jumps
+
+    filteredString = filteredString.replace('%', ' ')
+    filteredString = filteredString.replace('-', ' ')
+
+    //println(filteredString)
+
+    val list = filteredString.split(" ")
+
+    //println("${list.size}")
+
+    var theBiggest: Int = 0
+    var digitValue: Int = 0
+
+    if (list.isEmpty()) return -1
+
+    var checkStr: String
+
+    for(value in list) {
+        checkStr = value
+        checkStr = checkStr.filter { it != ' ' }
+
+        if (checkStr.isEmpty()) continue
+
+        try {
+            digitValue = checkStr.toInt()
+        }
+        catch (e: NumberFormatException) {
+            return -1
+        }
+
+        if (digitValue > theBiggest) {
+            theBiggest = digitValue
+        }
+    }
+
+    return theBiggest
+}
 
 /**
  * Сложная (6 баллов)
@@ -127,7 +293,59 @@ fun bestLongJump(jumps: String): Int = TODO()
  * При нарушении формата входной строки, а также в случае отсутствия удачных попыток,
  * вернуть -1.
  */
-fun bestHighJump(jumps: String): Int = TODO()
+fun bestHighJump(jumps: String): Int {
+    if (!jumps.contains('+')) return -1
+
+    val allowed = listOf<Char>( '+', ' ', '%', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+    val demanded = listOf<Char>( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+
+    var digitFound: Boolean = false
+
+    for(symbol in jumps) {
+        if (!allowed.contains(symbol)) return -1
+
+        if (demanded.contains(symbol)) digitFound = true
+    }
+
+    if (!digitFound) return -1
+
+    var filteredString: String = jumps
+
+    //filteredString = filteredString.replace('%', ' ')
+    //filteredString = filteredString.replace('-', ' ')
+
+    var theBiggest: Int = 0
+    var digitValue: Int = 0
+
+    val list = filteredString.split("+")
+    if (list.isEmpty()) return -1
+
+
+    var checkStr: String
+    var checkList = listOf<String>()
+
+    for (i in list.indices) {
+        if (i == list.size -1) break
+
+        if (list[i].isEmpty()) continue
+
+        checkStr = list[i]
+
+        checkList = checkStr.split(" ")
+
+        if (checkList.size < 2) continue
+
+        //println(checkList[checkList.size - 2])
+
+        digitValue = checkList[checkList.size - 2].toInt()
+
+        if (digitValue > theBiggest) {
+            theBiggest = digitValue
+        }
+    }
+
+    return theBiggest
+}
 
 /**
  * Сложная (6 баллов)
