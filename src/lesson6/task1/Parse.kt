@@ -95,7 +95,7 @@ fun dateStrToDigit(str: String): String {
     if (list.size != 3) return ""
 
     val months = listOf<String>(
-        "декабря",
+        "января",
         "февраля",
         "марта",
         "апреля",
@@ -121,7 +121,7 @@ fun dateStrToDigit(str: String): String {
 
     //println(String.format("%02d.%02d.%02d", dayNumber, monthNumber, yearNumber))
 
-    return String.format("%02d.%02d.%02d", dayNumber, monthNumber, yearNumber)
+    return String.format("%02d.%02d.%d", dayNumber, monthNumber, yearNumber)
 }
 
 /**
@@ -155,7 +155,7 @@ fun dateDigitToStr(digital: String): String {
     if ((monthNumber < 1) || (monthNumber > 12)) return ""
 
     val months = listOf<String>(
-        "декабря",
+        "января",
         "февраля",
         "марта",
         "апреля",
