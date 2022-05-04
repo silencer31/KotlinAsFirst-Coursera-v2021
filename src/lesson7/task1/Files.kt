@@ -290,7 +290,76 @@ fun alignFileByWidth(inputName: String, outputName: String) {
  * Ключи в ассоциативном массиве должны быть в нижнем регистре.
  *
  */
-fun top20Words(inputName: String): Map<String, Int> = TODO()
+fun top20Words(inputName: String): Map<String, Int> {
+    val textWords = mutableListOf<String>()
+    val uniqueMap = mutableMapOf<String, Int>()
+    val unsortedMap = mutableMapOf<String, Int>()
+    var word: String = ""
+
+    for (line in File(inputName).readLines()) {
+        word = ""
+        for (symbol in line) {
+            if (symbol.isLetter()) {
+                word += symbol.lowercaseChar()
+            }
+            else {
+                if (word.isNotEmpty()) {
+                    textWords.add(word)
+                    word = ""
+                }
+            }
+        }
+
+        if (word.isNotEmpty()) {
+            textWords.add(word)
+        }
+    }
+
+    val uniqueSet = textWords.toSet()
+
+
+    for(value in uniqueSet) {
+        unsortedMap[value] = textWords.count { it == value }
+    }
+
+    val result = unsortedMap.toList().sortedBy { (_, value) -> value}.reversed().toMap()
+
+    /*for (entry in result) {
+        print("Key: " + entry.key)
+        println(" Value: " + entry.value)
+    }*/
+
+    if ( result.keys.size < 21) {
+        return result
+    }
+
+    var counter = 0
+    var lastNumber: Int = 0
+
+    for((key, value) in result) {
+        if (counter < 21) {
+            uniqueMap[key] = value
+            counter++
+
+            if (counter == 20) lastNumber = value
+        }
+        else {
+            if (value == lastNumber) {
+                uniqueMap[key] = value
+            }
+            else {
+                break
+            }
+        }
+    }
+
+/*    for (entry in uniqueMap) {
+        print("Key: " + entry.key)
+        println(" Value: " + entry.value)
+    }
+*/
+    return uniqueMap.toMap()
+}
 
 /**
  * Средняя (14 баллов)
@@ -328,7 +397,70 @@ fun top20Words(inputName: String): Map<String, Int> = TODO()
  * Обратите внимание: данная функция не имеет возвращаемого значения
  */
 fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: String) {
-    TODO()
+    val writer = File(outputName).bufferedWriter()
+    val rules = mutableMapOf<Char, String>()
+    var correctedString: String = ""
+    var bigLetters: String = ""
+
+    for ((key, value) in dictionary) {
+        if (key.isLetter()) {
+            rules[key.lowercaseChar()] = value.lowercase()
+        }
+        else {
+            rules[key] = value
+        }
+    }
+
+    for (line in File(inputName).readLines()) {
+        correctedString = ""
+
+        for (symbol in line) {
+            if (symbol.isLetter()) {
+                if ( rules.keys.contains(symbol.lowercaseChar()) ) {
+                    if (symbol.isLowerCase()) {
+                        correctedString += rules[symbol]
+                    }
+                    else {
+                        bigLetters = ""
+                        bigLetters += rules[symbol.lowercaseChar()]
+
+                        if (bigLetters.isNotEmpty()) {
+                            if (bigLetters.length == 1) {
+                                bigLetters = bigLetters.uppercase()
+                            }
+                            else {
+                                bigLetters = bigLetters.substring(0, 1).uppercase() + bigLetters.substring(
+                                    1,
+                                    endIndex = bigLetters.length
+                                )
+                            }
+                        }
+                        println(bigLetters)
+                        correctedString += bigLetters
+                    }
+                }
+                else {
+                    correctedString += symbol
+                }
+            }
+            else {
+                if ( rules.keys.contains(symbol)) {
+                    correctedString += rules[symbol]
+                }
+                else {
+                    correctedString += symbol
+                }
+
+            }
+        }
+
+        println(correctedString)
+
+        writer.write(correctedString)
+        writer.newLine()
+    }
+
+    writer.close()
 }
 
 /**
@@ -356,7 +488,7 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
  * Обратите внимание: данная функция не имеет возвращаемого значения
  */
 fun chooseLongestChaoticWord(inputName: String, outputName: String) {
-    TODO()
+
 }
 
 /**
