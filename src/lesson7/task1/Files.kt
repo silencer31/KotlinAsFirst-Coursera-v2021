@@ -3,6 +3,7 @@
 package lesson7.task1
 
 import java.io.File
+import java.util.*
 
 // Урок 7: работа с файлами
 // Урок интегральный, поэтому его задачи имеют сильно увеличенную стоимость
@@ -63,7 +64,21 @@ fun alignFile(inputName: String, lineLength: Int, outputName: String) {
  * Подчёркивание в середине и/или в конце строк значения не имеет.
  */
 fun deleteMarked(inputName: String, outputName: String) {
-    TODO()
+    val writer = File(outputName).bufferedWriter()
+
+    for (line in File(inputName).readLines()) {
+        if (line.isEmpty()) {
+            writer.newLine()
+        }
+        else {
+            if (line[0] != '_') {
+                writer.write(line)
+                writer.newLine()
+            }
+        }
+    }
+
+    writer.close()
 }
 
 /**
@@ -75,7 +90,64 @@ fun deleteMarked(inputName: String, outputName: String) {
  * Регистр букв игнорировать, то есть буквы е и Е считать одинаковыми.
  *
  */
-fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> = TODO()
+fun numberOfOccurances(baseString: String, testString: String) : Int {
+    var counter = 0
+    val baseLen = baseString.length
+    val testLen = testString.length
+    var part: String
+    var symbolsLeft: Int = baseLen
+    var nextSymbolNumber: Int = 0
+
+    if (testLen > baseLen) return 0
+
+    if (baseString == testString) {
+        return 1
+    }
+
+    while (true) {
+        if (symbolsLeft < testLen) break
+
+        part = baseString.substring( nextSymbolNumber, nextSymbolNumber + testLen )
+
+        if (part == testString) {
+            counter++
+            nextSymbolNumber++
+            symbolsLeft--
+        }
+        else {
+            nextSymbolNumber++
+            symbolsLeft--
+        }
+    }
+
+    return counter
+}
+
+fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> {
+    val fileStringsMap = mutableMapOf<String, Int>()
+    val fileStrings = mutableListOf<String>()
+    var counter: Int = 0
+    var lowString: String
+
+    for (line in File(inputName).readLines()) {
+        fileStrings.add(line.lowercase(Locale.getDefault()))
+    }
+
+    for (subString in substrings) {
+        counter = 0
+        lowString = subString.lowercase(Locale.getDefault())
+
+        for (fileLine in fileStrings) {
+            if (fileLine.contains( lowString )) {
+                counter += numberOfOccurances(fileLine, lowString)
+            }
+        }
+
+        fileStringsMap[subString] = counter
+    }
+
+    return fileStringsMap.toMap()
+}
 
 
 /**
@@ -92,7 +164,35 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
  *
  */
 fun sibilants(inputName: String, outputName: String) {
-    TODO()
+    val goodExclusives = listOf<String>("ЖЮри", "Жюри","жЮри","жюри","броШЮра", "броШюра", "брошЮра", "брошюра", "параШЮт", "параШют", "парашЮт", "парашют")
+    val badExclusives  = listOf<String>("ЖУри", "Жури","жУри","жури","броШУра", "броШура", "брошУра", "брошура", "параШУт", "параШут", "парашУт", "парашут")
+
+    val listMistakes    = listOf<String>( "ШЮ", "Шю", "шЮ", "шю", "ШЯ", "Шя", "шЯ", "шя", "ЖЮ", "Жю", "жЮ", "жю","ЖЯ", "Жя", "жЯ", "жя", "ЖЫ", "Жы", "жЫ", "жы", "ШЫ", "Шы", "шЫ", "шы", "ЧЯ", "Чя", "чЯ", "чя", "ЩЯ", "Щя", "щЯ", "щя", "ЧЮ", "Чю", "чЮ", "чю", "ЩЮ", "Щю", "щЮ", "щю")
+    val listCorrections = listOf<String>( "ШУ", "Шу", "шУ", "шу", "ША", "Ша", "шА", "ша", "ЖУ", "Жу", "жУ", "жу","ЖА", "Жа", "жА", "жа", "ЖИ", "Жи", "жИ", "жи", "ШИ", "Ши", "шИ", "ши", "ЧА", "Ча", "чА", "ча", "ЩА", "Ща", "щА", "ща", "ЧУ", "Чу", "чУ", "чу", "ЩУ", "Щу", "щУ", "щу")
+    val writer = File(outputName).bufferedWriter()
+
+    var correctedString: String
+
+    for (line in File(inputName).readLines()) {
+        correctedString = line
+
+        for (i in listMistakes.indices) {
+            if ( correctedString.contains(listMistakes[i]) ) {
+                correctedString = correctedString.replace(listMistakes[i], listCorrections[i])
+            }
+        }
+
+        for (i in badExclusives.indices) {
+            if ( correctedString.contains(badExclusives[i]) ) {
+                correctedString = correctedString.replace(badExclusives[i], goodExclusives[i])
+            }
+        }
+
+        writer.write(correctedString)
+        writer.newLine()
+    }
+
+    writer.close()
 }
 
 /**
@@ -113,7 +213,30 @@ fun sibilants(inputName: String, outputName: String) {
  *
  */
 fun centerFile(inputName: String, outputName: String) {
-    TODO()
+    val fileStrings = mutableListOf<String>()
+    val writer = File(outputName).bufferedWriter()
+    var theLongest = 0
+    var delta = 0
+
+    for (line in File(inputName).readLines()) {
+       fileStrings.add(line.trim())
+       if (line.trim().length > theLongest) theLongest = line.trim().length
+    }
+
+    for (line in fileStrings) {
+        if ( line.length < theLongest ) {
+            delta = (theLongest - line.length) / 2
+
+            for( i in 0 until delta) {
+                writer.write(" ")
+            }
+        }
+
+        writer.write(line)
+        writer.newLine()
+    }
+
+    writer.close()
 }
 
 /**
