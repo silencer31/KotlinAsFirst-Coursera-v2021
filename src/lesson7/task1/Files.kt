@@ -167,8 +167,8 @@ fun sibilants(inputName: String, outputName: String) {
     val goodExclusives = listOf<String>("ЖЮри", "Жюри","жЮри","жюри","броШЮра", "броШюра", "брошЮра", "брошюра", "параШЮт", "параШют", "парашЮт", "парашют")
     val badExclusives  = listOf<String>("ЖУри", "Жури","жУри","жури","броШУра", "броШура", "брошУра", "брошура", "параШУт", "параШут", "парашУт", "парашут")
 
-    val listMistakes    = listOf<String>( "ШЮ", "Шю", "шЮ", "шю", "ШЯ", "Шя", "шЯ", "шя", "ЖЮ", "Жю", "жЮ", "жю","ЖЯ", "Жя", "жЯ", "жя", "ЖЫ", "Жы", "жЫ", "жы", "ШЫ", "Шы", "шЫ", "шы", "ЧЯ", "Чя", "чЯ", "чя", "ЩЯ", "Щя", "щЯ", "щя", "ЧЮ", "Чю", "чЮ", "чю", "ЩЮ", "Щю", "щЮ", "щю")
-    val listCorrections = listOf<String>( "ШУ", "Шу", "шУ", "шу", "ША", "Ша", "шА", "ша", "ЖУ", "Жу", "жУ", "жу","ЖА", "Жа", "жА", "жа", "ЖИ", "Жи", "жИ", "жи", "ШИ", "Ши", "шИ", "ши", "ЧА", "Ча", "чА", "ча", "ЩА", "Ща", "щА", "ща", "ЧУ", "Чу", "чУ", "чу", "ЩУ", "Щу", "щУ", "щу")
+    val listMistakes    = listOf<String>( "ШЮ", "Шю", "шЮ", "шю", "ШЯ", "Шя", "шЯ", "шя", "ЖЮ", "Жю", "жЮ", "жю","ЖЯ", "Жя", "жЯ", "жя", "ЖЫ", "Жы", "жЫ", "жы", "ШЫ", "Шы", "шЫ", "шы", "ЧЫ", "Чы", "чЫ", "чы", "ЧЯ", "Чя", "чЯ", "чя", "ЩЯ", "Щя", "щЯ", "щя", "ЧЮ", "Чю", "чЮ", "чю", "ЩЮ", "Щю", "щЮ", "щю")
+    val listCorrections = listOf<String>( "ШУ", "Шу", "шУ", "шу", "ША", "Ша", "шА", "ша", "ЖУ", "Жу", "жУ", "жу","ЖА", "Жа", "жА", "жа", "ЖИ", "Жи", "жИ", "жи", "ШИ", "Ши", "шИ", "ши", "ЧИ", "Чи", "чи", "чи", "ЧА", "Ча", "чА", "ча", "ЩА", "Ща", "щА", "ща", "ЧУ", "Чу", "чУ", "чу", "ЩУ", "Щу", "щУ", "щу")
     val writer = File(outputName).bufferedWriter()
 
     var correctedString: String
@@ -344,7 +344,7 @@ fun top20Words(inputName: String): Map<String, Int> {
             if (counter == 20) lastNumber = value
         }
         else {
-            if (value == lastNumber) {
+            if (value == lastNumber && lastNumber != 1) {
                 uniqueMap[key] = value
             }
             else {
@@ -421,22 +421,27 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
                         correctedString += rules[symbol]
                     }
                     else {
-                        bigLetters = ""
-                        bigLetters += rules[symbol.lowercaseChar()]
+                        if ( correctedString.endsWith(" ") || correctedString.isEmpty()) {
+                            bigLetters = ""
+                            bigLetters += rules[symbol.lowercaseChar()]
 
-                        if (bigLetters.isNotEmpty()) {
-                            if (bigLetters.length == 1) {
-                                bigLetters = bigLetters.uppercase()
+                            if (bigLetters.isNotEmpty()) {
+                                if (bigLetters.length == 1) {
+                                    bigLetters = bigLetters.uppercase()
+                                }
+                                else {
+                                    bigLetters = bigLetters.substring(0, 1).uppercase() + bigLetters.substring(
+                                        1,
+                                        endIndex = bigLetters.length
+                                    )
+                                }
                             }
-                            else {
-                                bigLetters = bigLetters.substring(0, 1).uppercase() + bigLetters.substring(
-                                    1,
-                                    endIndex = bigLetters.length
-                                )
-                            }
+                            //println(bigLetters)
+                            correctedString += bigLetters
                         }
-                        println(bigLetters)
-                        correctedString += bigLetters
+                        else {
+                            correctedString += rules[symbol.lowercaseChar()]
+                        }
                     }
                 }
                 else {
@@ -454,7 +459,7 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
             }
         }
 
-        println(correctedString)
+        //println(correctedString)
 
         writer.write(correctedString)
         writer.newLine()
@@ -488,7 +493,7 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
  * Обратите внимание: данная функция не имеет возвращаемого значения
  */
 fun chooseLongestChaoticWord(inputName: String, outputName: String) {
-
+    TODO()
 }
 
 /**
