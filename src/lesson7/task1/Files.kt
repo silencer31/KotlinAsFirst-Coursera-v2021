@@ -431,7 +431,7 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
                         correctedString += rules[symbol]
                     }
                     else {
-                        if ( correctedString.isEmpty() || (  !correctedString.endsWith(" ") )) {
+
                             bigLetters = ""
                             bigLetters += rules[symbol.lowercaseChar()]
 
@@ -448,10 +448,8 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
                             }
                             //println(bigLetters)
                             correctedString += bigLetters
-                        }
-                        else {
-                            correctedString += rules[symbol.lowercaseChar()]
-                        }
+
+
                     }
                 }
                 else {
