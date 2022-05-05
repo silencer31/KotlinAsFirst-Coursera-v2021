@@ -167,8 +167,11 @@ fun sibilants(inputName: String, outputName: String) {
     val goodExclusives = listOf<String>("ЖЮри", "Жюри","жЮри","жюри","броШЮра", "броШюра", "брошЮра", "брошюра", "параШЮт", "параШют", "парашЮт", "парашют")
     val badExclusives  = listOf<String>("ЖУри", "Жури","жУри","жури","броШУра", "броШура", "брошУра", "брошура", "параШУт", "параШут", "парашУт", "парашут")
 
-    val listMistakes    = listOf<String>( "ШЮ", "Шю", "шЮ", "шю", "ШЯ", "Шя", "шЯ", "шя", "ЖЮ", "Жю", "жЮ", "жю","ЖЯ", "Жя", "жЯ", "жя", "ЖЫ", "Жы", "жЫ", "жы", "ШЫ", "Шы", "шЫ", "шы", "ЧЫ", "Чы", "чЫ", "чы", "ЧЯ", "Чя", "чЯ", "чя", "ЩЯ", "Щя", "щЯ", "щя", "ЧЮ", "Чю", "чЮ", "чю", "ЩЮ", "Щю", "щЮ", "щю")
-    val listCorrections = listOf<String>( "ШУ", "Шу", "шУ", "шу", "ША", "Ша", "шА", "ша", "ЖУ", "Жу", "жУ", "жу","ЖА", "Жа", "жА", "жа", "ЖИ", "Жи", "жИ", "жи", "ШИ", "Ши", "шИ", "ши", "ЧИ", "Чи", "чи", "чи", "ЧА", "Ча", "чА", "ча", "ЩА", "Ща", "щА", "ща", "ЧУ", "Чу", "чУ", "чу", "ЩУ", "Щу", "щУ", "щу")
+    val goodToChange = listOf<String>("жЮри","броШЮра", "параШют")
+    val terribles    = listOf<String>("жУри","броШУра", "параШут")
+
+    val listMistakes    = listOf<String>( "ШЮ", "Шю", "шЮ", "шю", "ШЯ", "Шя", "шЯ", "шя", "ЖЮ", "Жю", "жЮ", "жю","ЖЯ", "Жя", "жЯ", "жя", "ЖЫ", "Жы", "жЫ", "жы", "ШЫ", "Шы", "шЫ", "шы", "ЧЫ", "Чы", "чЫ", "чы", "ЧЯ", "Чя", "чЯ", "чя", "ЩЯ", "Щя", "щЯ", "щя", "ЩЫ", "Щы", "щЫ", "щы", "ЧЮ", "Чю", "чЮ", "чю", "ЩЮ", "Щю", "щЮ", "щю")
+    val listCorrections = listOf<String>( "ШУ", "Шу", "шУ", "шу", "ША", "Ша", "шА", "ша", "ЖУ", "Жу", "жУ", "жу","ЖА", "Жа", "жА", "жа", "ЖИ", "Жи", "жИ", "жи", "ШИ", "Ши", "шИ", "ши", "ЧИ", "Чи", "чИ", "чи", "ЧА", "Ча", "чА", "ча", "ЩА", "Ща", "щА", "ща", "ЩИ", "Щи", "щИ", "щи", "ЧУ", "Чу", "чУ", "чу", "ЩУ", "Щу", "щУ", "щу")
     val writer = File(outputName).bufferedWriter()
 
     var correctedString: String
@@ -185,6 +188,12 @@ fun sibilants(inputName: String, outputName: String) {
         for (i in badExclusives.indices) {
             if ( correctedString.contains(badExclusives[i]) ) {
                 correctedString = correctedString.replace(badExclusives[i], goodExclusives[i])
+            }
+        }
+
+        for (i in goodToChange.indices) {
+            if ( correctedString.contains(goodToChange[i]) ) {
+                correctedString = correctedString.replace(goodToChange[i], terribles[i])
             }
         }
 
@@ -337,7 +346,7 @@ fun top20Words(inputName: String): Map<String, Int> {
     var lastNumber: Int = 0
 
     for((key, value) in result) {
-        if (counter < 21) {
+        if (counter < 20) {
             uniqueMap[key] = value
             counter++
 
@@ -407,8 +416,9 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
             rules[key.lowercaseChar()] = value.lowercase()
         }
         else {
-            rules[key] = value
+            rules[key] = value.lowercase()
         }
+
     }
 
     for (line in File(inputName).readLines()) {
@@ -421,7 +431,7 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
                         correctedString += rules[symbol]
                     }
                     else {
-                        if ( correctedString.endsWith(" ") || correctedString.isEmpty()) {
+                        if ( correctedString.isEmpty() || (  !correctedString.endsWith(" ") )) {
                             bigLetters = ""
                             bigLetters += rules[symbol.lowercaseChar()]
 
