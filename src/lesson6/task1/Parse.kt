@@ -194,6 +194,10 @@ fun flattenPhoneNumber(phone: String): String {
 
     var resultNumber: String
 
+    if (phone.length == 1) {
+        if (!phone[0].isDigit()) return ""
+    }
+
     if (phone.startsWith("+"))
         resultNumber = phone.substring(1)
     else
