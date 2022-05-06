@@ -276,7 +276,87 @@ fun centerFile(inputName: String, outputName: String) {
  * 8) Если входной файл удовлетворяет требованиям 1-7, то он должен быть в точности идентичен выходному файлу
  */
 fun alignFileByWidth(inputName: String, outputName: String) {
-    TODO()
+    val writer = File(outputName).bufferedWriter()
+    val fileStrings = mutableListOf<String>()
+    var stringParts = listOf<String>()
+    var correctedString: String = ""
+    var lastSymbol: Char = ' '
+    var theLongest = 0
+    var totalSpaces = 0
+    var averageSpaces = 0
+    var restSpacesNumber = 0
+    var numberOfBigSpaces = 0
+    var wordsInLine = 0
+
+    for (line in File(inputName).readLines()) {
+        if (line.trim().isEmpty()) {
+            fileStrings.add("")
+            continue
+        }
+
+        correctedString = ""
+        for (symbol in line.trim()) {
+            if (symbol != ' ') {
+                correctedString += symbol
+                lastSymbol = symbol
+            }
+            else {
+                if (lastSymbol != ' ') {
+                    correctedString += symbol
+                }
+
+                lastSymbol = symbol
+            }
+        }
+
+        fileStrings.add(correctedString)
+
+        if (correctedString.length > theLongest) theLongest = correctedString.length
+    }
+
+    //println("The longest ${theLongest}")
+
+    for (line in fileStrings) {
+        if ( (line.length == theLongest) || (line.isEmpty()) || (!line.contains(' '))) {
+            writer.write(line)
+            writer.newLine()
+            continue
+        }
+
+        stringParts = line.split(" ")
+        wordsInLine = stringParts.size
+        totalSpaces = theLongest - line.length + wordsInLine - 1
+        averageSpaces = totalSpaces / (wordsInLine - 1)
+        restSpacesNumber = totalSpaces - ((wordsInLine - 1) * averageSpaces)
+        correctedString = ""
+
+        for (i in 0 until wordsInLine) {
+            correctedString += stringParts[i]
+
+            if (i == (wordsInLine - 1)) break
+
+            if (restSpacesNumber > 0) {
+                for (j in 0 until (averageSpaces + 1)) {
+                    correctedString += " "
+                }
+
+                restSpacesNumber--
+            }
+            else {
+                for (j in 0 until averageSpaces) {
+                    correctedString += " "
+                }
+            }
+
+        }
+
+        //println(correctedString.length)
+
+        writer.write(correctedString)
+        writer.newLine()
+    }
+
+    writer.close()
 }
 
 /**
