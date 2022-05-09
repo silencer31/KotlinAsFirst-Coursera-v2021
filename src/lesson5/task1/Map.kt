@@ -628,6 +628,18 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
         ind++
     }
 
+    fun checkCombination(set: Set<Int>): Int {
+        var totalWeight = 0
+        var totalPrice = 0
+
+        set.forEach{
+            totalWeight += weights[it]
+            if (totalWeight > capacity) return 0
+            totalPrice += prices[it]
+        }
+
+        return totalPrice
+    }
 
     fun isCombinationPossible(set: Set<Int>): Boolean {
         var total = 0
@@ -647,12 +659,10 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
         return total
     }
 
-
-
     // Проверим, возможно ли взять все
-    if ( isCombinationPossible(indexes.toSet()) ) {
+    /*if ( isCombinationPossible(indexes.toSet()) ) {
         return names.toSet()
-    }
+    }*/
 
     fun testOutput(bigSet: Set<Set<Int>>) {
         bigSet.forEach {
@@ -663,7 +673,7 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
     fun reduceCombination(setToReduce: Set<Int>): Set<Set<Int>> {
         val setOfReducedSets = mutableSetOf<Set<Int>>()
 
-        setToReduce.reversed().forEach {
+        setToReduce.forEach {
             val workSet = setToReduce.toMutableSet()
             workSet.remove(it)
             setOfReducedSets.add(workSet)
@@ -673,7 +683,7 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
     }
 
     val summarySet = mutableSetOf<Set<Int>>()
-    summarySet += indexes.toSet()
+    summarySet += indexes.reversed().toSet()
     var currentSetToCheck = summarySet.toSet()
 
     var bestPrice = 0
@@ -686,7 +696,7 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
             //println(it)
             if (isCombinationPossible(it)) {
 
-                currentPrice = combinationTotalPrice(it)
+                currentPrice = checkCombination(it)
                 if (currentPrice > bestPrice) {
                     bestPrice = currentPrice
                     bestCombinaton = it
