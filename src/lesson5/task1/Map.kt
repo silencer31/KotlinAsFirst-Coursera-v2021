@@ -2,6 +2,8 @@
 
 package lesson5.task1
 
+import ru.spbstu.wheels.uncheckedCast
+
 // Урок 5: ассоциативные массивы и множества
 // Максимальное количество баллов = 14
 // Рекомендуемое количество баллов = 9
@@ -337,13 +339,18 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
  */
 fun canBuildFrom(chars: List<Char>, word: String): Boolean {
     val lettersSet = mutableSetOf<Char>()
+    val lowerChars = mutableListOf<Char>()
+
+    for(letter in chars){
+        lowerChars.add(letter.lowercaseChar())
+    }
 
     for (letter in word) {
-        lettersSet.add(letter)
+        lettersSet.add(letter.lowercaseChar())
     }
 
     for(letter in lettersSet) {
-        if (!chars.contains(letter)) return false
+        if (!lowerChars.contains(letter)) return false
     }
 
     return true
@@ -462,7 +469,80 @@ fun hasAnagrams(words: List<String>): Boolean {
  *          "GoodGnome" to setOf()
  *        )
  */
-fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<String>> = TODO()
+fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<String>> {
+    val hands = mutableMapOf<String, Set<String>>()
+
+    val uniqueNames = mutableSetOf<String>()
+    val lonely      = mutableSetOf<String>()
+    val notSure     = mutableSetOf<String>()
+
+
+    for((key, value) in friends) {
+        if (value.isEmpty()) {
+            lonely.add(key)
+        }
+        else {
+            uniqueNames.add(key)
+
+            for(name in value) {
+                notSure.add(name)
+            }
+        }
+    }
+
+    for(name in notSure) {
+        if ( !uniqueNames.contains(name)) {
+            lonely.add(name)
+        }
+    }
+
+    for (name in uniqueNames) {
+        val connections = mutableSetOf<String>()
+
+        val drugi = friends[name] ?: continue
+
+        for (value in drugi) {
+            connections.add(value)
+        }
+
+        for (value in drugi) {
+            val farFriends = friends[value] ?: continue
+
+            for (person in farFriends) {
+                if (person != name)
+                    connections.add(person)
+            }
+        }
+
+        while (true) {
+            val oldSize = connections.size
+            val farFriendsCopy = mutableSetOf<String>()
+
+            for (person in connections) {
+                farFriendsCopy.add(person)
+            }
+
+            for (value in farFriendsCopy) {
+                val veryFarFriends = friends[value] ?: continue
+
+                for (person in veryFarFriends) {
+                    if (person != name)
+                        connections.add(person)
+                }
+            }
+
+            if (connections.size == oldSize) break
+        }
+
+        hands[name] = connections
+    }
+
+    for (name in lonely) {
+        hands[name] = setOf()
+    }
+
+    return hands.toMap()
+}
 
 /**
  * Сложная (6 баллов)
@@ -481,7 +561,24 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<Stri
  *   findSumOfTwo(listOf(1, 2, 3), 4) -> Pair(0, 2)
  *   findSumOfTwo(listOf(1, 2, 3), 6) -> Pair(-1, -1)
  */
-fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> = TODO()
+fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
+    if (list.size < 2) return Pair(-1, -1)
+
+    var indexOne = 0
+
+    for(i in 0 until list.size) {
+        indexOne = i
+        for(j in 0 until list.size) {
+            if (j == indexOne) continue
+
+            if (list[indexOne] + list[j] == number) {
+                return Pair(indexOne, j)
+            }
+        }
+    }
+
+    return Pair(-1, -1)
+}
 
 /**
  * Очень сложная (8 баллов)
@@ -504,4 +601,136 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> = TODO()
  *     450
  *   ) -> emptySet()
  */
-fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> = TODO()
+fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
+    if (treasures.isEmpty()) return emptySet()
+
+    val acceptables = mutableMapOf<String, Pair<Int, Int>>()
+    treasures.forEach{
+        if (it.value.first <= capacity ) {
+            acceptables[it.key] = Pair(it.value.first, it.value.second)
+        }
+    }
+
+    if (acceptables.isEmpty()) return emptySet()
+
+    val sorted = acceptables.toList().sortedBy { (_, value) -> value.first}.toMap()
+
+    val names = mutableListOf<String>()
+    val weights = mutableListOf<Int>()
+    val prices  = mutableListOf<Int>()
+    val indexes  = mutableListOf<Int>()
+    var ind = 0
+
+    sorted.forEach{
+        names.add(it.key)
+        weights.add(it.value.first)
+        prices.add(it.value.second)
+        indexes.add(ind)
+        ind++
+    }
+//println(indexes)
+    /*
+    1. Создавать комбинацию уникальных индексов сокровищ
+    2. Проверять, возможно ли размещение такой комбинации в рюкзаке
+    3. Если возможно, вычислять её сумму и сравнивать с прошлой максимальной суммой.
+    4. Если новая сумма больше, то запоминать новую сумму и комбинацию
+    5. В конце вернуть самую выгодную
+     */
+
+    fun isCombinationPossible(set: Set<Int>): Boolean {
+        var total = 0
+        set.forEach{
+            total += weights[it]
+            if (total > capacity) return false
+        }
+
+        return true
+    }
+
+    fun combinationTotalPrice(set: Set<Int>): Int {
+        var total = 0
+        set.forEach{
+            total += prices[it]
+        }
+        return total
+    }
+
+    // Проверим, возможно ли взять все
+    if ( isCombinationPossible(indexes.toSet()) ) {
+        return names.toSet()
+    }
+
+    fun getOneItemCombinations(): Set<Set<Int>> {
+        val bigSet = mutableSetOf<Set<Int>>()
+
+        for(i in 0 until indexes.size) {
+            val workSet = setOf<Int>(indexes[i])
+            bigSet.add(workSet)
+        }
+
+        return bigSet.toSet()
+    }
+
+    fun expandCombination(set: Set<Int>): Set<Set<Int>> {
+        val bigSet = mutableSetOf<Set<Int>>()
+
+        for(i in 0 until indexes.size) {
+            val workSet = set.toMutableSet()
+            if (workSet.contains(indexes[i])) continue
+            workSet.add(indexes[i])
+
+            if ( isCombinationPossible(workSet.toSet())) {
+                bigSet.add(workSet)
+            }
+        }
+
+        return bigSet.toSet()
+    }
+
+    fun testOutput(bigSet: Set<Set<Int>>) {
+        bigSet.forEach {
+            println("${it}   price ${combinationTotalPrice(it)}")
+        }
+    }
+
+    val summarySet = mutableSetOf<Set<Int>>()
+    summarySet += getOneItemCombinations()
+
+    var previousCombinations = summarySet
+
+    //testOutput(previousCombinations)
+
+    for(i in 0 until (indexes.size - 2)) {
+        val bigExpansion = mutableSetOf<Set<Int>>()
+
+        previousCombinations.forEach {
+            val expansion = expandCombination( it )
+            //testOutput(expansion)
+            bigExpansion += expansion
+        }
+
+        previousCombinations = bigExpansion
+        summarySet += bigExpansion
+    }
+
+    var bestCombinaton = setOf<Int>()
+    var bestPrice = 0
+    var previousPrice = 0
+
+    //testOutput(summaryList)
+
+    summarySet.forEach {
+        previousPrice = combinationTotalPrice( it)
+        if ( previousPrice > bestPrice) {
+            bestPrice = previousPrice
+            bestCombinaton = it
+        }
+    }
+
+    val result = mutableSetOf<String>()
+    bestCombinaton.forEach {
+        result += names[it]
+    }
+
+    return result.toSet()
+}
