@@ -604,10 +604,15 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
     if (treasures.isEmpty()) return emptySet()
 
+    var totalPrice: Long = 0
+    var totalWeight: Long = 0
+
     val acceptables = mutableMapOf<String, Pair<Int, Int>>()
-    treasures.forEach{
-        if (it.value.first <= capacity ) {
+    treasures.forEach {
+        if (it.value.first <= capacity) {
             acceptables[it.key] = Pair(it.value.first, it.value.second)
+            totalPrice += it.value.second
+            totalWeight += it.value.first
         }
     }
 
@@ -615,12 +620,12 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
 
     val names = mutableListOf<String>()
     val weights = mutableListOf<Int>()
-    val prices  = mutableListOf<Int>()
-    val indexes  = mutableListOf<Int>()
+    val prices = mutableListOf<Int>()
+    val indexes = mutableListOf<Int>()
     var ind = 0
 
 
-    acceptables.forEach{
+    acceptables.forEach {
         names.add(it.key)
         weights.add(it.value.first)
         prices.add(it.value.second)
@@ -628,13 +633,83 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
         ind++
     }
 
-    fun checkCombination(set: Set<Int>): Int {
+
+    /* fun testOutput(bigSet: Set<Set<Int>>) {
+        bigSet.forEach {
+            println("$it   price ${combinationTotalPrice(it)}")
+        }
+    }*/
+
+    fun reduceCombination(pairWithSetToReduce: Pair<Set<Int>, Pair<Long, Long>>): Set<Pair<Set<Int>, Pair<Long, Long>>> {
+        val setOfReducedSets = mutableSetOf<Pair<Set<Int>, Pair<Long, Long>>>()
+        val setToReduce = pairWithSetToReduce.first
+
+        setToReduce.reversed().forEach {
+            val workSet = setToReduce.toMutableSet()
+            workSet.remove(it)
+
+            val newCombination = Pair(
+                workSet.toSet(),
+                Pair(pairWithSetToReduce.second.first - weights[it], pairWithSetToReduce.second.second - prices[it])
+            )
+
+            setOfReducedSets.add(newCombination)
+        }
+
+        return setOfReducedSets.toSet()
+    }
+
+    val initialCombination = Pair(indexes.toSet(), Pair(totalWeight, totalPrice))
+
+    val summarySet = mutableSetOf<Pair<Set<Int>, Pair<Long, Long>>>()
+    summarySet += initialCombination
+    var currentSetToCheck = summarySet.toSet()
+
+    var bestPrice = 0L
+
+
+    var bestCombinaton = setOf<Int>()
+
+    for (i in 0 until indexes.size) {
+        currentSetToCheck.forEach {
+            //println(it)
+            if (it.second.first <= capacity) {
+                if (it.second.second > bestPrice) {
+                    bestPrice = it.second.second
+                    bestCombinaton = it.first
+                }
+            }
+        }
+
+        if (bestPrice > 0) break
+
+        val newReducedSets = mutableSetOf<Pair<Set<Int>, Pair<Long, Long>>>()
+
+        currentSetToCheck.forEach {
+            newReducedSets += reduceCombination(it)
+        }
+
+        currentSetToCheck = newReducedSets
+    }
+
+
+    val result = mutableSetOf<String>()
+
+    bestCombinaton.forEach {
+        result += names[it]
+    }
+
+    return result.toSet()
+}
+
+/*
+fun checkCombination(set: Set<Int>): Int {
         var totalWeight = 0
         var totalPrice = 0
 
         set.forEach{
             totalWeight += weights[it]
-            if (totalWeight > capacity) return 0
+            if (totalWeight > capacity) return -1
             totalPrice += prices[it]
         }
 
@@ -660,70 +735,10 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
     }
 
     // Проверим, возможно ли взять все
-    /*if ( isCombinationPossible(indexes.toSet()) ) {
+    if ( isCombinationPossible(indexes.toSet()) ) {
         return names.toSet()
-    }*/
-
-    fun testOutput(bigSet: Set<Set<Int>>) {
-        bigSet.forEach {
-            println("$it   price ${combinationTotalPrice(it)}")
-        }
     }
-
-    fun reduceCombination(setToReduce: Set<Int>): Set<Set<Int>> {
-        val setOfReducedSets = mutableSetOf<Set<Int>>()
-
-        setToReduce.forEach {
-            val workSet = setToReduce.toMutableSet()
-            workSet.remove(it)
-            setOfReducedSets.add(workSet)
-        }
-
-        return setOfReducedSets.toSet()
-    }
-
-    val summarySet = mutableSetOf<Set<Int>>()
-    summarySet += indexes.reversed().toSet()
-    var currentSetToCheck = summarySet.toSet()
-
-    var bestPrice = 0
-    var currentPrice = 0
-
-    var bestCombinaton = setOf<Int>()
-
-    for(i in 0 until indexes.size ) {
-        currentSetToCheck.forEach {
-            //println(it)
-            if (isCombinationPossible(it)) {
-
-                currentPrice = checkCombination(it)
-                if (currentPrice > bestPrice) {
-                    bestPrice = currentPrice
-                    bestCombinaton = it
-                }
-            }
-        }
-
-        if (bestPrice > 0) break
-
-        val newReducedSets = mutableSetOf<Set<Int>>()
-
-        currentSetToCheck.forEach {
-            newReducedSets += reduceCombination(it)
-        }
-
-        currentSetToCheck = newReducedSets
-    }
-
-
-    val result = mutableSetOf<String>()
-    bestCombinaton.forEach {
-        result += names[it]
-    }
-
-    return result.toSet()
-}
-
+ */
 
 /*
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
